@@ -1,7 +1,10 @@
 package datastructures.concrete.dictionaries;
 
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
+import datastructures.concrete.KVPair;
 import datastructures.interfaces.IDictionary;
 import misc.exceptions.NoSuchKeyException;
 
@@ -151,4 +154,39 @@ public class ArrayDictionary<K, V> implements IDictionary<K, V> {
             return this.key + "=" + this.value;
         }
     }
+    
+	@Override
+	public Iterator<KVPair<K, V>> iterator() {
+		return new ArrayDictionaryIterator<K, V>(-1, this.size, this.pairs);
+	}
+    
+    private static class ArrayDictionaryIterator<K, V> implements Iterator<KVPair<K, V>> {
+        private int index;
+        private int size;
+        private Pair<K, V>[] pairs;
+        
+        public ArrayDictionaryIterator(int index, int size, Pair<K, V>[] pairs) {
+            // You do not need to make any changes to this constructor.
+            this.index = index;
+            this.size = size;
+            this.pairs = pairs;
+        }
+        
+		@Override
+		public boolean hasNext() {
+			return ((index+1) < size);
+		}
+	
+		@Override
+		public KVPair<K, V> next() {
+			if (hasNext()) {
+				index++;
+				return new KVPair<K, V>(pairs[index].key, pairs[index].value);
+			} else {
+				throw new NoSuchElementException("No more element in the list");
+			}
+		}
+        
+    }
+
 }
