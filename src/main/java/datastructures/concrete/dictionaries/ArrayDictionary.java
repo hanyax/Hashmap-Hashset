@@ -53,7 +53,8 @@ public class ArrayDictionary<K, V> implements IDictionary<K, V> {
     @Override
     public V get(K key) {
         for (int i = 0; i < size; i++) {
-            if ((key == null && pairs[i].key == null) || pairs[i].key.equals(key)) {
+            if ((key == null && pairs[i].key == null) || 
+            		(pairs[i].key != null && pairs[i].key.equals(key))) {
                 return pairs[i].value;
             }
         }
@@ -123,11 +124,14 @@ public class ArrayDictionary<K, V> implements IDictionary<K, V> {
      */
     @Override
     public boolean containsKey(K key) {
-        for (int i = 0; i < size; i++) {
-            if ((key == null && pairs[i].key == null) || pairs[i].key.equals(key)) {
-                return true;
-            }
-        }
+    		if (this.size != 0) { 
+	        for (int i = 0; i < size; i++) {
+	            if ((key == null && pairs[i].key == null) || 
+	            		(pairs[i].key != null && pairs[i].key.equals(key))) {
+	                return true;
+	            }
+	        }
+    		}
         return false;
     }
     
@@ -157,36 +161,33 @@ public class ArrayDictionary<K, V> implements IDictionary<K, V> {
     
 	@Override
 	public Iterator<KVPair<K, V>> iterator() {
-		return new ArrayDictionaryIterator<K, V>(-1, this.size, this.pairs);
+		return new ArrayDictionaryIterator<K, V>(this);
 	}
     
     private static class ArrayDictionaryIterator<K, V> implements Iterator<KVPair<K, V>> {
         private int index;
-        private int size;
-        private Pair<K, V>[] pairs;
+        private ArrayDictionary<K, V> dic;
         
-        public ArrayDictionaryIterator(int index, int size, Pair<K, V>[] pairs) {
+        public ArrayDictionaryIterator(ArrayDictionary<K, V> dic) {
             // You do not need to make any changes to this constructor.
-            this.index = index;
-            this.size = size;
-            this.pairs = pairs;
+            this.dic = dic;
+            this.index = -1;
         }
         
 		@Override
 		public boolean hasNext() {
-			return ((index+1) < size);
+			return ((index+1) < dic.size);
 		}
 	
 		@Override
 		public KVPair<K, V> next() {
 			if (hasNext()) {
 				index++;
-				return new KVPair<K, V>(pairs[index].key, pairs[index].value);
+				return new KVPair<K, V>(dic.pairs[index].key, dic.pairs[index].value);
 			} else {
 				throw new NoSuchElementException("No more element in the list");
 			}
 		}
-        
     }
 
 }
