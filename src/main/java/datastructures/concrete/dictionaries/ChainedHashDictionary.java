@@ -2,6 +2,7 @@ package datastructures.concrete.dictionaries;
 
 import datastructures.concrete.KVPair;
 import datastructures.interfaces.IDictionary;
+import misc.exceptions.NoSuchKeyException;
 import misc.exceptions.NotYetImplementedException;
 
 import java.util.Iterator;
@@ -12,12 +13,17 @@ import java.util.Iterator;
 public class ChainedHashDictionary<K, V> implements IDictionary<K, V> {
     // You may not change or rename this field: we will be inspecting
     // it using our private tests.
+	
     private IDictionary<K, V>[] chains;
+    private int totalSize;
+    private int bucketSize;
 
     // You're encouraged to add extra fields (and helper methods) though!
 
     public ChainedHashDictionary() {
-        throw new NotYetImplementedException();
+    		totalSize = 0;
+    		bucketSize  = 10;
+        chains = this.makeArrayOfChains(bucketSize);
     }
 
     /**
@@ -36,12 +42,36 @@ public class ChainedHashDictionary<K, V> implements IDictionary<K, V> {
 
     @Override
     public V get(K key) {
-        throw new NotYetImplementedException();
+    		int index = this.getIndex(key);
+		IDictionary<K, V> values = chains[index];
+		System.out.println(index + "!!!" + values);
+		if (values != null) {
+			return values.get(key);
+		} else {
+			throw new NoSuchKeyException("Element does not exist");
+		}
     }
 
     @Override
     public void put(K key, V value) {
-        throw new NotYetImplementedException();
+		int index = this.getIndex(key);
+		IDictionary<K, V> values = chains[index];
+		if (values == null) {
+			values = new ArrayDictionary<K, V>();
+		} 
+		values.put(key, value);
+		totalSize++;
+    }
+    
+    private int getIndex(K key) {
+		if (key == null) {
+			return 0;
+		} else {
+			return key.hashCode() % this.bucketSize;
+		}
+    }
+    
+    private void ensurePerformance() {
     }
 
     @Override
@@ -56,7 +86,7 @@ public class ChainedHashDictionary<K, V> implements IDictionary<K, V> {
 
     @Override
     public int size() {
-        throw new NotYetImplementedException();
+        return totalSize;
     }
 
     @Override
