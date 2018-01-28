@@ -3,9 +3,9 @@ package datastructures.concrete.dictionaries;
 import datastructures.concrete.KVPair;
 import datastructures.interfaces.IDictionary;
 import misc.exceptions.NoSuchKeyException;
-import misc.exceptions.NotYetImplementedException;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * See the spec and IDictionary for more details on what each method should do
@@ -153,28 +153,48 @@ public class ChainedHashDictionary<K, V> implements IDictionary<K, V> {
         private IDictionary<K, V>[] chains;
         private Iterator<KVPair<K, V>> currentIter; 
         private int index;
+        
      
         public ChainedIterator(IDictionary<K, V>[] chains) {
-            this.chains = chains;
-            index = 0;
-            while (chains[index] == null && index < chains.length) {
-            		index++;
-            }
-            if (index < chains.length) {
-            		currentIter = chains[index].iterator();
-            } else {
-            		currentIter = null;
-            }
+        		this.chains = chains;
+        		this.currentIter = null;
+        		this.index = 0;
         }
 
         @Override
         public boolean hasNext() {
-        		return hasNextHelper(0);
+        		return hasNextHelper();
+        }
+        
+        private boolean hasNextHelper() {
+        		if (index >= chains.length) {
+        			return false;
+        		} else if (currentIter == null) {
+        			if (chains[index] != null && !chains[index].isEmpty()) {
+        				currentIter = chains[index].iterator();
+        				return currentIter.hasNext();
+        			} else {
+        				index += 1;
+        				return hasNextHelper();
+        			} 
+        		} else {
+        			if (currentIter.hasNext()) {
+        				return true;
+        			} else {
+        				currentIter = null;
+        				index += 1;
+        				return hasNextHelper();
+        			}
+        		}
         }
                 
         @Override
         public KVPair<K, V> next() {
-            throw new NotYetImplementedException();
+        		if (this.hasNext()) {
+        			return currentIter.next();
+        		} else {
+        			throw new NoSuchElementException("No more element in the list");
+        		}
         }
     }
 }
