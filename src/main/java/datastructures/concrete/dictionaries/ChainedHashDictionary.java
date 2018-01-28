@@ -44,7 +44,6 @@ public class ChainedHashDictionary<K, V> implements IDictionary<K, V> {
     public V get(K key) {
     		int index = this.getIndex(key);
 		IDictionary<K, V> values = chains[index];
-		System.out.println(index + "!!!" + values);
 		if (values != null) {
 			return values.get(key);
 		} else {
@@ -55,12 +54,13 @@ public class ChainedHashDictionary<K, V> implements IDictionary<K, V> {
     @Override
     public void put(K key, V value) {
 		int index = this.getIndex(key);
-		IDictionary<K, V> values = chains[index];
-		if (values == null) {
-			values = new ArrayDictionary<K, V>();
+		if (chains[index] == null) {
+			chains[index] = new ArrayDictionary<K, V>();
 		} 
-		values.put(key, value);
-		totalSize++;
+		if (!this.containsKey(key)) {
+			totalSize++;
+		}
+		chains[index].put(key, value);
     }
     
     private int getIndex(K key) {
@@ -76,12 +76,20 @@ public class ChainedHashDictionary<K, V> implements IDictionary<K, V> {
 
     @Override
     public V remove(K key) {
-        throw new NotYetImplementedException();
+		if (this.containsKey(key)) {
+			totalSize--;
+			return chains[getIndex(key)].remove(key);
+		} else {
+			throw new NoSuchKeyException("Element does not exist");
+		}
     }
 
     @Override
     public boolean containsKey(K key) {
-        throw new NotYetImplementedException();
+    		if (chains[this.getIndex(key)] != null) {
+    			return chains[this.getIndex(key)].containsKey(key);
+    		}
+    		return false;
     }
 
     @Override
@@ -143,16 +151,27 @@ public class ChainedHashDictionary<K, V> implements IDictionary<K, V> {
      */
     private static class ChainedIterator<K, V> implements Iterator<KVPair<K, V>> {
         private IDictionary<K, V>[] chains;
-
+        private Iterator<KVPair<K, V>> currentIter; 
+        private int index;
+     
         public ChainedIterator(IDictionary<K, V>[] chains) {
             this.chains = chains;
+            index = 0;
+            while (chains[index] == null && index < chains.length) {
+            		index++;
+            }
+            if (index < chains.length) {
+            		currentIter = chains[index].iterator();
+            } else {
+            		currentIter = null;
+            }
         }
 
         @Override
         public boolean hasNext() {
-            throw new NotYetImplementedException();
+        		return hasNextHelper(0);
         }
-
+                
         @Override
         public KVPair<K, V> next() {
             throw new NotYetImplementedException();
