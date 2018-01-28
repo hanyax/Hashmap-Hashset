@@ -53,6 +53,7 @@ public class ChainedHashDictionary<K, V> implements IDictionary<K, V> {
 
     @Override
     public void put(K key, V value) {
+    		ensurePerformance();
 		int index = this.getIndex(key);
 		if (chains[index] == null) {
 			chains[index] = new ArrayDictionary<K, V>();
@@ -67,11 +68,26 @@ public class ChainedHashDictionary<K, V> implements IDictionary<K, V> {
 		if (key == null) {
 			return 0;
 		} else {
+			if (key.hashCode() < 0) {
+				return -key.hashCode()  % this.bucketSize;
+			}
 			return key.hashCode() % this.bucketSize;
 		}
     }
     
     private void ensurePerformance() {
+    		if ((totalSize * 1.0 / bucketSize) > 0.5) {
+    			bucketSize *= 2;
+    			IDictionary<K, V>[] newChains = this.makeArrayOfChains(bucketSize);
+    			for (KVPair<K, V> pair : this) {
+    				int index = this.getIndex(pair.getKey());
+    				if (newChains[index] == null) {
+    					newChains[index] = new ArrayDictionary<K, V>();
+    				} 
+    				newChains[index].put(pair.getKey(), pair.getValue());
+    			}
+    			this.chains = newChains;
+    		}
     }
 
     @Override
