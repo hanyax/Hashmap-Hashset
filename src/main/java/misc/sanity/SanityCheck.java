@@ -1,10 +1,10 @@
 package misc.sanity;
 
-import java.util.ArrayList;
 import java.util.function.Function;
 
 // Checkstyle will report an error with this line:
 import datastructures.concrete.DoubleLinkedList;
+import datastructures.interfaces.IList;
 
 public class SanityCheck {
     public static void main(String[] args) {
@@ -16,10 +16,9 @@ public class SanityCheck {
         System.out.println(org.openjdk.jol.util.MathUtil.gcd(200L, 335L));
 
         // The following four lines should run, but checkstyle should complain about style errors in both lines.
-        // TODO: checkstyle will flag all todos as errors
-        ArrayList<String> a = new ArrayList<>();
-        a.add("test"); // Deliberately long line: ............................................................................................... end
-        System.out.println( a.isEmpty());
+        IList<String> a = new DoubleLinkedList<String>();
+        a.add("test"); 
+        System.out.println(a.isEmpty());
 
         System.out.println("Sanity check complete: everything seems to have been configured correctly!");
     }
